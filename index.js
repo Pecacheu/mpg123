@@ -70,6 +70,7 @@ function MpgPlayer(device, noFrames) {
 		break;
 		}
 	}));
+	this.stream.on('error', function(e) {self.emit('error', e)});
 }
 
 var p = MpgPlayer.prototype;
