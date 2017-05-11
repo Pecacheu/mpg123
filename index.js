@@ -27,7 +27,7 @@ function MpgPlayer(device, noFrames) {
 	var self = this, args = ['-R'];
 	if(typeof device == 'object') args.push('-a'+device.address);
 	
-	this.child = cp.spawn('mpg123', args); this.stream = this.child.stdin;
+	this.child = cp.spawn(process.env.mpgPath||'mpg123', args); this.stream = this.child.stdin;
 	if(noFrames) this._cmd('SILENCE');
 	
 	this.child.stdout.pipe(es.split()).pipe(through(function(data) {
