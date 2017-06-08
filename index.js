@@ -62,7 +62,8 @@ function MpgPlayer(device, noFrames) {
 			if(self._s == 2) {
 				self.samples = line[1];
 				self.length = Math.round((self.samples/self.sampleRate)*10)/10;
-				self._s = 0; self.emit('format');
+				if(self._doSeek) { self._cmd('K', Math.floor(self._doSeek*self.samples)); self._doSeek = null; }
+				self._s = 0; self.format = true; self.emit('format');
 			}
 			var s = line[0], l = line[1], p = (s/l);
 			for(var i=0,l=self._gpcb.length; i<l; i++) self._gpcb[i](p,s,l);
@@ -82,7 +83,8 @@ p._cmd = function() {
 }
 p.play = function(file) {
 	this.track = file.substr(file.lastIndexOf('/')+1);
-	this.file = file; this._s = 1; return this._cmd('L', file);
+	this.file = file; this._s = 1; this.format = false;
+	this._doSeek = null; return this._cmd('L', file);
 }
 p.pause = function() {
 	return this._cmd('P');
@@ -100,7 +102,9 @@ p.volume = function(vol) {
 }
 p.seek = function(pos) {
 	pos = Math.min(Math.max(pos, 0), 1);
-	return this._cmd('K', Math.floor(pos*this.samples));
+	if(!this.format) this._doSeek = pos; else {
+		return this._cmd('K', Math.floor(pos*this.samples));
+	}
 }
 p._gpcb = [];
 p.getProgress = function(callback) {
